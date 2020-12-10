@@ -1,0 +1,3 @@
+[submodule "src/FIREBASE"]
+	path = src/FIREBASE
+	url = git@github.com:Ball129/FIREBASE.git
