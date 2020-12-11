@@ -10,8 +10,10 @@ import {
     Label, Segment, TextArea,
 } from "semantic-ui-react";
 import {AppContext} from "../../constance/appContext";
-import logger from "../../CORE/services";
 
+
+let fontSize = '18px'
+let btnSize = '3em'
 
 let pieces = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
@@ -86,13 +88,19 @@ class CardAMathCalculatorComponent extends Component {
         })
     }
 
-    generateButton = (_key, color='teal') => {
-        let btnSize = '11vw'
+    generateButton = (_key, color = 'teal') => {
         return (
             <Button
                 key={_key}
                 circular
-                style={{width: btnSize, height: btnSize, padding: '0px', margin: '2px', textAlign: 'center'}}
+                style={{
+                    width: btnSize,
+                    height: btnSize,
+                    padding: '0px',
+                    margin: '2px',
+                    textAlign: 'center',
+                    fontSize: fontSize
+                }}
                 color={color}
                 value={_key}
                 onClick={(e) => {
@@ -156,7 +164,7 @@ class CardAMathCalculatorComponent extends Component {
                             if (['x2eq', 'x3eq'].includes(value[0])) {
                                 equationBlocks[index].multiply = 1
                                 equationBlocks[index].equationMultiply = value[1]
-                            } else if(value) {
+                            } else if (value) {
                                 equationBlocks[index].multiply = value[1]
                                 equationBlocks[index].equationMultiply = 1
                             } else {
@@ -213,8 +221,8 @@ class CardAMathCalculatorComponent extends Component {
         try {
             let eqTextList = this.state.equationBlocks.map((value => {
                 return value?.value.toString()
-            })).join('').replace(/[^0-9*\/()\-+.=]/g, '').split('=')
-            logger({eqTextList})
+            })).join('').replace(/[^0-9*/()\-+.=]/g, '').split('=')
+
             if (eqTextList.length < 2) {
                 this.setState({valid: false})
                 return
@@ -240,41 +248,31 @@ class CardAMathCalculatorComponent extends Component {
 
     render() {
         return (
-            <Card style={{height: '100vh'}} fluid>
-                {/*<Button*/}
-                {/*    onClick={(event => {*/}
-                {/*        let firestore = this.props.db.firestore()*/}
-                {/*        let collection = firestore.collection('config')*/}
-                {/*        let data = {}*/}
-                {/*        pieces.forEach((piece) => {*/}
-                {/*            data[piece] = {*/}
-                {/*                'name': piece,*/}
-                {/*                'value': piece,*/}
-                {/*                'point': 1*/}
-                {/*            }*/}
-                {/*        })*/}
-                {/*        FirestoreService.setDocument(collection, 'pieces', data)*/}
-                {/*    })}*/}
-                {/*/>*/}
-
+            <Card centered style={{boxShadow: 'None', maxWidth: '35em'}} fluid>
                 <Card.Content>
                     <Dimmer.Dimmable>
                         <Dimmer active={this.state.loading} inverted/>
 
-                        <Grid style={{padding: '1vw'}}>
+                        <Grid textAlign={'center'} style={{padding: '1vw'}}>
                             <GridRow>
                                 <Label detail={this.state.equationBlocks.map((value => {
                                     return value?.value.toString()
-                                })).join(' ')} style={{fontSize: '1.5vh', backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
+                                })).join(' ')} style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
                             </GridRow>
                             <GridRow>
-                                <Label detail={`Point: ${this.state.point}`} style={{fontSize: '1.5vh', backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
+                                <Label detail={`Point: ${this.state.point}`}
+                                       style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
                                 <div/>
-                                <Label detail={'Valid:'} style={{fontSize: '1.5vh', backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
-                                {this.state.valid ? <Icon name={'checkmark'} color={'green'}/> : <Icon name={'close'} color={'red'}/>}
+                                <Label detail={'Valid:'}
+                                       style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
+                                {
+                                    this.state.valid ?
+                                        <Icon name={'checkmark'} color={'green'}/>
+                                        : <Icon name={'close'} color={'red'}/>
+                                }
                             </GridRow>
                             <GridRow>
-                                <GridColumn>
+                                <GridColumn textAlign={'center'}>
                                     <GridRow>
                                         {
                                             pieces.slice(0, 5).map((_key) => {
@@ -313,6 +311,17 @@ class CardAMathCalculatorComponent extends Component {
                                     </GridRow>
                                     <GridRow>
                                         {this.generateButton(pieces[28], 'yellow')}
+                                        {[...Array(6).keys()].map(() => {
+                                            return <Button circular style={{
+                                                width: btnSize,
+                                                height: btnSize,
+                                                padding: '0px',
+                                                margin: '2px',
+                                                textAlign: 'center',
+                                                fontSize: fontSize,
+                                                backgroundColor: 'inherit'
+                                            }} disabled={true}> </Button>
+                                        })}
                                     </GridRow>
                                 </GridColumn>
                             </GridRow>
@@ -335,7 +344,7 @@ class CardAMathCalculatorComponent extends Component {
                             <GridRow>
                                 <p>เพิ่มตัวคูณ</p>
                                 <Segment style={{
-                                    height: '30vh',
+                                    height: '20em',
                                     width: '90%',
                                     overflowY: 'auto',
                                     overflowX: 'hidden',

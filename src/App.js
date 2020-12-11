@@ -5,9 +5,11 @@ import {FirestoreProvider} from "react-firestore";
 import {AppContext} from "./constance/appContext";
 import {CardAMathCalculator} from "./apps/CAL/CardAMathCalculator";
 import CardStopWatch from "./apps/TIMER/CardStopWatch";
-import {Button, Container, Label, Menu} from "semantic-ui-react";
+import {Container, Menu} from "semantic-ui-react";
 import CardCountdown from "./apps/TIMER/CardCoundown";
 
+
+let menuHeight = '4em'
 
 class App extends Component {
 
@@ -23,9 +25,24 @@ class App extends Component {
         }
     }
 
-    render() {
-        let menuHeight = '4em'
+    selectCard = () => {
+        switch (this.state.currentCard) {
+            case 0:
+                return (
+                    <Container style={{height: '100vh', paddingTop: menuHeight, boxShadow: 'None'}}>
+                        <CardAMathCalculator/>
+                    </Container>
+                )
+            case 1:
+                return <CardStopWatch/>
+            case 2:
+                return <CardCountdown/>
+            default:
+                return <div/>
+        }
+    }
 
+    render() {
         return (
             <AppContext.Provider value={this.state}>
                 <FirestoreProvider firebase={firebase}>
@@ -59,16 +76,12 @@ class App extends Component {
 
                         <Menu.Menu position={'right'}>
                             <Menu.Item>
-                                <p>V. 2.0</p>
+                                <p>V. 2.1</p>
                             </Menu.Item>
                         </Menu.Menu>
                     </Menu>
 
-                    <Container fluid style={{marginTop: menuHeight}}>
-                        {this.state.currentCard === 0 ? <CardAMathCalculator/> : <div/>}
-                        {this.state.currentCard === 1 ? <CardStopWatch/> : <div/>}
-                        {this.state.currentCard === 2 ? <CardCountdown/> : <div/>}
-                    </Container>
+                    {this.selectCard()}
                 </FirestoreProvider>
             </AppContext.Provider>
         );
