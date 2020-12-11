@@ -5,7 +5,7 @@ import {FirestoreProvider} from "react-firestore";
 import {AppContext} from "./constance/appContext";
 import {CardAMathCalculator} from "./apps/CAL/CardAMathCalculator";
 import CardStopWatch from "./apps/TIMER/CardStopWatch";
-import {Container, Menu} from "semantic-ui-react";
+import {Button, Container, Label, Menu} from "semantic-ui-react";
 import CardCountdown from "./apps/TIMER/CardCoundown";
 
 
@@ -56,6 +56,12 @@ class App extends Component {
                             }}>
                             Countdown
                         </Menu.Item>
+
+                        <Menu.Menu position={'right'}>
+                            <Menu.Item>
+                                <p>V. 2.0</p>
+                            </Menu.Item>
+                        </Menu.Menu>
                     </Menu>
 
                     <Container fluid style={{marginTop: menuHeight}}>
