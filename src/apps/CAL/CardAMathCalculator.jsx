@@ -9,8 +9,8 @@ import {
     GridRow, Icon,
     Label, Segment, TextArea,
 } from "semantic-ui-react";
-import {AppContext} from "../constance/appContext";
-import logger from "../CORE/services";
+import {AppContext} from "../../constance/appContext";
+import logger from "../../CORE/services";
 
 
 let pieces = [
@@ -86,14 +86,14 @@ class CardAMathCalculatorComponent extends Component {
         })
     }
 
-    generateButton = (_key) => {
+    generateButton = (_key, color='teal') => {
         let btnSize = '11vw'
         return (
             <Button
                 key={_key}
                 circular
                 style={{width: btnSize, height: btnSize, padding: '0px', margin: '2px', textAlign: 'center'}}
-                color={'teal'}
+                color={color}
                 value={_key}
                 onClick={(e) => {
                     let equationBlocks = this.state.equationBlocks;
@@ -281,8 +281,8 @@ class CardAMathCalculatorComponent extends Component {
                                                 return this.generateButton(_key)
                                             })
                                         }
-                                        {this.generateButton(pieces[21])}
-                                        {this.generateButton(pieces[24])}
+                                        {this.generateButton(pieces[21], 'blue')}
+                                        {this.generateButton(pieces[24], 'blue')}
                                     </GridRow>
                                     <GridRow>
                                         {
@@ -290,8 +290,8 @@ class CardAMathCalculatorComponent extends Component {
                                                 return this.generateButton(_key)
                                             })
                                         }
-                                        {this.generateButton(pieces[22])}
-                                        {this.generateButton(pieces[25])}
+                                        {this.generateButton(pieces[22], 'blue')}
+                                        {this.generateButton(pieces[25], 'blue')}
                                     </GridRow>
                                     <GridRow>
                                         {
@@ -299,8 +299,8 @@ class CardAMathCalculatorComponent extends Component {
                                                 return this.generateButton(_key)
                                             })
                                         }
-                                        {this.generateButton(pieces[23])}
-                                        {this.generateButton(pieces[26])}
+                                        {this.generateButton(pieces[23], 'blue')}
+                                        {this.generateButton(pieces[26], 'blue')}
                                     </GridRow>
                                     <GridRow>
                                         {
@@ -309,10 +309,10 @@ class CardAMathCalculatorComponent extends Component {
                                             })
                                         }
                                         {this.generateButton(pieces[20])}
-                                        {this.generateButton(pieces[27])}
+                                        {this.generateButton(pieces[27], 'orange')}
                                     </GridRow>
                                     <GridRow>
-                                        {this.generateButton(pieces[28])}
+                                        {this.generateButton(pieces[28], 'yellow')}
                                     </GridRow>
                                 </GridColumn>
                             </GridRow>
