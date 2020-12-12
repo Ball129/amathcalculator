@@ -1,3 +1,6 @@
 [submodule "src/FIREBASE"]
 	path = src/FIREBASE
 	url = git@github.com:Ball129/FIREBASE.git
+[submodule "src/components"]
+	path = src/components
+	url = git@github.com:Ball129/react-components.git

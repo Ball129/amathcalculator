@@ -10,6 +10,8 @@ import {
     Label, Segment, TextArea,
 } from "semantic-ui-react";
 import {AppContext} from "../../constance/appContext";
+import RealTimeDbService from "../../FIREBASE/realtimeDbService";
+import {ModScoreHistory} from "../HISTORY/ModScoreHistory";
 
 
 let fontSize = '18px'
@@ -58,6 +60,8 @@ class CardAMathCalculatorComponent extends Component {
             equationBlocks: [],
             point: 0,
             valid: false,
+            openScoreHistory: false,
+            refKey: null,
         }
 
     }
@@ -85,6 +89,8 @@ class CardAMathCalculatorComponent extends Component {
             equationBlocks: [],
             point: 0,
             valid: false,
+            openScoreHistory: false,
+            refKey: null,
         })
     }
 
@@ -130,7 +136,7 @@ class CardAMathCalculatorComponent extends Component {
     generateEquationBlock = () => {
         return this.state.equationBlocks.map((item, index) => {
             return (
-                <GridRow>
+                <GridRow key={index}>
                     <Label detail={`${index + 1}. ${item.name}`} style={{backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
                     <Dropdown
                         style={{minWidth: '6em'}}
@@ -141,31 +147,32 @@ class CardAMathCalculatorComponent extends Component {
                             {
                                 key: 'x2',
                                 text: 'x2',
-                                value: ['x2', 2],
+                                value: 2,
                             },
                             {
                                 key: 'x3',
                                 text: 'x3',
-                                value: ['x3', 3],
+                                value: 3,
                             },
                             {
                                 key: 'x2eq',
                                 text: 'x2eq',
-                                value: ['x2eq', 2],
+                                value: 20,
                             },
                             {
                                 key: 'x3eq',
                                 text: 'x3eq',
-                                value: ['x3eq', 3],
+                                value: 30,
                             }
                         ]}
+                        value={item.equationMultiply > 1 ? item.equationMultiply * 10 : item.multiply}
                         onChange={(e, {value}) => {
                             let equationBlocks = this.state.equationBlocks;
-                            if (['x2eq', 'x3eq'].includes(value[0])) {
+                            if ([20, 30].includes(value)) {
                                 equationBlocks[index].multiply = 1
-                                equationBlocks[index].equationMultiply = value[1]
+                                equationBlocks[index].equationMultiply = value/10
                             } else if (value) {
-                                equationBlocks[index].multiply = value[1]
+                                equationBlocks[index].multiply = value
                                 equationBlocks[index].equationMultiply = 1
                             } else {
                                 equationBlocks[index].multiply = 1
@@ -180,6 +187,7 @@ class CardAMathCalculatorComponent extends Component {
                             placeholder={item.name}
                             selection
                             options={piecesOptions[item.name]}
+                            value={item.value}
                             onChange={(e, {value}) => {
                                 let equationBlocks = this.state.equationBlocks;
                                 equationBlocks[index].value = value
@@ -191,11 +199,14 @@ class CardAMathCalculatorComponent extends Component {
                         pieces[28] === item.name ? <TextArea
                             style={{minWidth: '6em'}}
                             rows={1}
+                            value={item.value}
                             onChange={(e, {value}) => {
+                                let equationBlocks = this.state.equationBlocks;
+                                equationBlocks[index].value = value
                                 if (pieces.includes(value)) {
-                                    let equationBlocks = this.state.equationBlocks;
-                                    equationBlocks[index].value = value
                                     this.setState({equationBlocks: equationBlocks}, this.calculatePoint)
+                                } else {
+                                    this.setState({equationBlocks: equationBlocks})
                                 }
                             }}
                         /> : <div/>
@@ -259,17 +270,37 @@ class CardAMathCalculatorComponent extends Component {
                                     return value?.value.toString()
                                 })).join(' ')} style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
                             </GridRow>
-                            <GridRow>
-                                <Label detail={`Point: ${this.state.point}`}
-                                       style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
-                                <div/>
-                                <Label detail={'Valid:'}
-                                       style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
-                                {
-                                    this.state.valid ?
-                                        <Icon name={'checkmark'} color={'green'}/>
-                                        : <Icon name={'close'} color={'red'}/>
-                                }
+                            <GridRow columns={3}>
+                                <GridColumn>
+                                    <Label detail={`Point: ${this.state.point}`}
+                                           style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
+                                    </GridColumn>
+                                <GridColumn>
+                                    <Label detail={'Valid:'}
+                                           style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
+                                    {
+                                        this.state.valid ?
+                                            <Icon name={'checkmark'} color={'green'}/>
+                                            : <Icon name={'close'} color={'red'}/>
+                                    }
+                                </GridColumn>
+                                <GridColumn>
+                                    <ModScoreHistory
+                                        openModal={this.state.openScoreHistory}
+                                        onClose={() => {
+                                            this.setState({openScoreHistory: false})
+                                        }}
+                                        onEditHistory={(history) => {
+                                            this.setState({
+                                                openScoreHistory: false,
+                                                refKey: history.key,
+                                                equationBlocks: history.equationBlocks,
+                                                point: history.point
+                                            })
+                                        }}
+                                    />
+                                    <Button onClick={()=>{this.setState({openScoreHistory: true})}}>History</Button>
+                                </GridColumn>
                             </GridRow>
                             <GridRow>
                                 <GridColumn textAlign={'center'}>
@@ -311,8 +342,8 @@ class CardAMathCalculatorComponent extends Component {
                                     </GridRow>
                                     <GridRow>
                                         {this.generateButton(pieces[28], 'yellow')}
-                                        {[...Array(6).keys()].map(() => {
-                                            return <Button circular style={{
+                                        {[...Array(6).keys()].map((a) => {
+                                            return <Button key={a*99} circular style={{
                                                 width: btnSize,
                                                 height: btnSize,
                                                 padding: '0px',
@@ -332,13 +363,46 @@ class CardAMathCalculatorComponent extends Component {
                                                 this.clear()
                                             }}
                                     >Clear</Button>
-                                    <Button floated={'right'} color={'red'} circular
+                                    <Button floated={'right'} color={'orange'} circular
                                             onClick={() => {
                                                 let equationBlocks = this.state.equationBlocks;
                                                 equationBlocks.pop()
                                                 this.setState({equationBlocks: equationBlocks}, this.calculatePoint)
                                             }}
                                     >Undo</Button>
+                                    <Button floated={'right'} color={'green'} circular
+                                            onClick={() => {
+                                                this.setState({loading: true})
+
+                                                if (!this.props.currentUserName) {
+                                                    alert('Select User!!')
+                                                    this.setState({loading: false})
+                                                    return
+                                                }
+                                                if (!this.state.valid) {
+                                                    alert('Not valid equation!!')
+                                                    this.setState({loading: false})
+                                                    return
+                                                }
+
+                                                let dbCon = this.props.db.database().ref(`/messages/${this.props.currentUserName}`);
+
+                                                let timestamp = Date.now()
+                                                let rKey = this.state.refKey || timestamp.toString()
+                                                RealTimeDbService.setData(dbCon, rKey, {
+                                                    equationBlocks: this.state.equationBlocks,
+                                                    point: this.state.point
+                                                }).then(success => {
+                                                        alert('Saved')
+                                                    }, failed => {
+
+                                                    }
+                                                ).finally(() => {
+                                                    this.setState({loading: false})
+                                                })
+
+                                            }}
+                                    >Save</Button>
                                 </GridColumn>
                             </GridRow>
                             <GridRow>
