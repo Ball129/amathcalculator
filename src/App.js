@@ -104,7 +104,7 @@ class App extends Component {
 />
                             </Menu.Item>
                             <Menu.Item>
-                                <p>V. 2.1</p>
+                                <p>V. 2.2</p>
                             </Menu.Item>
                         </Menu.Menu>
                     </Menu>
