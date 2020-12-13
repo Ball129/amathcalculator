@@ -20,8 +20,12 @@ class SubCardScoreHistory extends Component {
         });
     }
 
-    onUpdate = (e) => {
+    onClickEdit = (e) => {
         return this.props.onEditHistory()
+    }
+
+    onClickCopy = (e) => {
+        return this.props.onCopyHistory()
     }
 
     onClickDelete = (e) => {
@@ -45,8 +49,11 @@ class SubCardScoreHistory extends Component {
                     <Button basic color='red' style={deleteBtnStyle} onClick={this.onClickDelete}>
                         Delete
                     </Button>
-                    <Button basic color='orange' style={deleteBtnStyle} onClick={this.onUpdate}>
-                        Update
+                    <Button basic color='orange' style={deleteBtnStyle} onClick={this.onClickEdit}>
+                        Edit
+                    </Button>
+                    <Button basic color='pink' style={deleteBtnStyle} onClick={this.onClickCopy}>
+                        Copy
                     </Button>
                 </CardContent>
             </Card>
