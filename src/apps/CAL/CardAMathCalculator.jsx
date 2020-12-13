@@ -65,8 +65,7 @@ class CardAMathCalculatorComponent extends Component {
             openScoreHistory: false,
             refKey: null,
         }
-        // this.alert = React.createRef()
-
+        this.alert = React.createRef()
     }
 
     componentDidMount() {
@@ -81,7 +80,9 @@ class CardAMathCalculatorComponent extends Component {
             })
         })
             .catch((error) => {
-                alert(error);
+                this.alert.current.header = 'Somethings not right'
+                this.alert.current.content = error
+                this.alert.current.show()
             });
     }
 
@@ -263,9 +264,7 @@ class CardAMathCalculatorComponent extends Component {
     render() {
         return (
             <Card centered style={{boxShadow: 'None', maxWidth: '35em'}} fluid>
-                {/*<ModAlert*/}
-                {/*    ref={this.alert}*/}
-                {/*/>*/}
+                <ModAlert ref={this.alert}/>
                 <Card.Content>
                     <Dimmer.Dimmable>
                         <Dimmer active={this.state.loading} inverted/>
@@ -406,14 +405,14 @@ class CardAMathCalculatorComponent extends Component {
                                             this.setState({loading: true})
 
                                             if (!this.props.currentUserName) {
-                                                alert('Select User!!')
-                                                // this.alert.current.header = 'Select User!!'
-                                                // this.alert.current.show()
+                                                this.alert.current.header = 'Select User!!'
+                                                this.alert.current.show()
                                                 this.setState({loading: false})
                                                 return
                                             }
                                             if (!this.state.valid) {
-                                                alert('Not valid equation!!')
+                                                this.alert.current.header = 'Not valid equation!!'
+                                                this.alert.current.show()
                                                 this.setState({loading: false})
                                                 return
                                             }
@@ -426,7 +425,8 @@ class CardAMathCalculatorComponent extends Component {
                                                 equationBlocks: this.state.equationBlocks,
                                                 point: this.state.point
                                             }).then(success => {
-                                                    alert('Saved')
+                                                this.alert.current.header = 'Saved'
+                                                this.alert.current.show()
                                                 }, failed => {
 
                                                 }

@@ -13,39 +13,30 @@ class SubScoreHistoryListComponent extends Component {
         this.state = {
             loading: false,
             scoreHistory: [],
-            refresh: false
         };
     }
 
-    componentWillReceiveProps(props) {
-        this.setState({refresh: props.refresh}, this.refresh)
-    }
-
     componentDidMount() {
-        this.setState({refresh: true}, this.refresh)
+        this.refresh()
     }
 
     refresh = () => {
-        if (this.state.refresh) {
-            logger('Refresh History List')
-            let dbRef = this.props.db.database().ref(`/messages/${this.props.currentUserName}`);
-            this.setState({loading: true})
-            RealTimeDbService.getData(dbRef)
-                .then((data) => {
-                    this.props.setTotalPoint(
-                        data.reduce((totalPoint, d) => {
-                            return totalPoint += d.point
-                        }, 0)
-                    )
-                    this.setState({
-                        loading: false,
-                        scoreHistory: data
-                    });
-                }).catch(() => {
-            })
-            this.setState({refresh: false})
-            this.props?.onRefreshed()
-        }
+        logger('Refresh History List')
+        let dbRef = this.props.db.database().ref(`/messages/${this.props.currentUserName}`);
+        this.setState({loading: true})
+        RealTimeDbService.getData(dbRef)
+            .then((data) => {
+                this.props.setTotalPoint(
+                    data.reduce((totalPoint, d) => {
+                        return totalPoint += d.point
+                    }, 0)
+                )
+                this.setState({
+                    loading: false,
+                    scoreHistory: data
+                });
+            }).catch(() => {
+        })
     }
 
     render() {
@@ -81,7 +72,7 @@ class SubScoreHistoryListComponent extends Component {
 }
 
 
-export const SubScoreHistoryList = (props) => {
+export const SubScoreHistoryList = React.forwardRef((props, ref) => {
     let appContext = useContext(AppContext);
-    return <SubScoreHistoryListComponent {...props} {...appContext}/>
-};
+    return <SubScoreHistoryListComponent ref={ref} {...props} {...appContext}/>
+});

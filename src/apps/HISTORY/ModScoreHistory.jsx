@@ -14,8 +14,9 @@ class ModScoreHistoryComponent extends React.Component {
             totalPoint: 0,
             loading: false,
             openModalConfirm: false,
-            refreshHistoryList: false,
         }
+
+        this.scoreHistoryList = React.createRef()
     }
 
     componentDidMount() {
@@ -65,8 +66,8 @@ class ModScoreHistoryComponent extends React.Component {
                         RealTimeDbService.removeAll(dbRef)
                             .then(() => {
                                 logger('History Cleared')
-                                this.setState({totalPoint: 0})
-                                this.setState({loading: false, refreshHistoryList: true})
+                                this.scoreHistoryList.current.refresh()
+                                this.setState({totalPoint: 0, loading: false})
                             }).catch(() => {
                         })
                     }}
@@ -99,14 +100,12 @@ class ModScoreHistoryComponent extends React.Component {
                             <Grid.Row>
                                 <Grid.Column>
                                     <SubScoreHistoryList
-                                        refresh={this.state.refreshHistoryList}
+                                        ref={this.scoreHistoryList}
                                         onEditHistory={this.props.onEditHistory}
                                         setTotalPoint={(totalPoint) => {
                                             this.setState({totalPoint: totalPoint})
                                         }}
-                                        onRefreshed={() => {
-                                            this.setState({refreshHistoryList: false})
-                                        }}/>
+                                    />
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>
