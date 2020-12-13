@@ -12,6 +12,8 @@ import {
 import {AppContext} from "../../constance/appContext";
 import RealTimeDbService from "../../FIREBASE/realtimeDbService";
 import {ModScoreHistory} from "../HISTORY/ModScoreHistory";
+import stringMath from 'string-math'
+import ModAlert from "../../components/ModAlert";
 
 
 let fontSize = '18px'
@@ -63,6 +65,7 @@ class CardAMathCalculatorComponent extends Component {
             openScoreHistory: false,
             refKey: null,
         }
+        // this.alert = React.createRef()
 
     }
 
@@ -242,9 +245,9 @@ class CardAMathCalculatorComponent extends Component {
             let valid = true
             eqTextList.forEach((eq) => {
                 if (result === null) {
-                    result = eval(eq)
+                    result = stringMath(eq)
                 } else {
-                    let newResult = eval(eq)
+                    let newResult = stringMath(eq)
 
                     if (newResult !== result) {
                         valid = false
@@ -260,6 +263,9 @@ class CardAMathCalculatorComponent extends Component {
     render() {
         return (
             <Card centered style={{boxShadow: 'None', maxWidth: '35em'}} fluid>
+                {/*<ModAlert*/}
+                {/*    ref={this.alert}*/}
+                {/*/>*/}
                 <Card.Content>
                     <Dimmer.Dimmable>
                         <Dimmer active={this.state.loading} inverted/>
@@ -401,6 +407,8 @@ class CardAMathCalculatorComponent extends Component {
 
                                             if (!this.props.currentUserName) {
                                                 alert('Select User!!')
+                                                // this.alert.current.header = 'Select User!!'
+                                                // this.alert.current.show()
                                                 this.setState({loading: false})
                                                 return
                                             }
