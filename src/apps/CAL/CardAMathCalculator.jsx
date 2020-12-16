@@ -7,13 +7,14 @@ import {
     Grid,
     GridColumn,
     GridRow, Icon,
-    Label, Segment, TextArea,
+    Label, Radio, Segment, TextArea,
 } from "semantic-ui-react";
 import {AppContext} from "../../constance/appContext";
 import RealTimeDbService from "../../FIREBASE/realtimeDbService";
 import {ModScoreHistory} from "../HISTORY/ModScoreHistory";
 import stringMath from 'string-math'
 import ModAlert from "../../components/ModAlert";
+import _ from 'lodash'
 
 
 let fontSize = '18px'
@@ -59,11 +60,15 @@ class CardAMathCalculatorComponent extends Component {
         this.state = {
             pieces_data: {},
             loading: false,
-            equationBlocks: [],
             point: 0,
             valid: false,
             openScoreHistory: false,
             refKey: null,
+            leftChecked: false,
+
+            leftEquationBlocks: [],
+            midEquationBlocks: [],
+            rightEquationBlocks: [],
         }
         this.alert = React.createRef()
     }
@@ -88,14 +93,19 @@ class CardAMathCalculatorComponent extends Component {
 
     static defaultProps = {}
 
-    clear = () => {
+    clear = (callback) => {
         this.setState({
-            equationBlocks: [],
+            loading: false,
             point: 0,
             valid: false,
             openScoreHistory: false,
             refKey: null,
-        })
+            leftChecked: false,
+
+            leftEquationBlocks: [],
+            midEquationBlocks: [],
+            rightEquationBlocks: [],
+        }, _.isFunction(callback) ? callback : null)
     }
 
     generateButton = (_key, color = 'teal') => {
@@ -114,107 +124,119 @@ class CardAMathCalculatorComponent extends Component {
                 color={color}
                 value={_key}
                 onClick={(e) => {
-                    let equationBlocks = this.state.equationBlocks;
-                    if (equationBlocks.length >= 15) {
+                    if ((this.state.leftEquationBlocks.length + this.state.midEquationBlocks.length + this.state.rightEquationBlocks.length) >= 15) {
                         return
                     }
 
                     let newBlock = JSON.parse(JSON.stringify(this.state.pieces_data[_key]))
                     newBlock.multiply = null
-                    equationBlocks.push(newBlock)
+
+                    let leftEquationBlocks = this.state.leftEquationBlocks
+                    let rightEquationBlocks = this.state.rightEquationBlocks
+                    if (this.state.leftChecked) {
+                        leftEquationBlocks.push(newBlock)
+                    } else {
+                        rightEquationBlocks.push(newBlock)
+                    }
 
                     let point = 0
-                    equationBlocks.forEach((item) => {
+                    leftEquationBlocks.forEach((item) => {
+                        point += item.point
+                    })
+                    rightEquationBlocks.forEach((item) => {
                         point += item.point
                     })
 
                     this.setState({
+                        leftEquationBlocks: leftEquationBlocks,
+                        rightEquationBlocks: rightEquationBlocks,
                         point: point,
-                        equationBlocks: equationBlocks,
                     }, this.calculatePoint)
                 }}
             >{_key}</Button>
         )
     }
 
-    generateEquationBlock = () => {
-        return this.state.equationBlocks.map((item, index) => {
+    generateEquationBlock = (stateName) => {
+        return this.state[stateName].map((item, index) => {
             return (
                 <GridRow key={index}>
-                    <Label detail={`${index + 1}. ${item.name}`} style={{backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
-                    <Dropdown
-                        style={{minWidth: '6em'}}
-                        placeholder='คูณ'
-                        selection
-                        clearable
-                        options={[
-                            {
-                                key: 'x2',
-                                text: 'x2',
-                                value: 2,
-                            },
-                            {
-                                key: 'x3',
-                                text: 'x3',
-                                value: 3,
-                            },
-                            {
-                                key: 'x2eq',
-                                text: 'x2eq',
-                                value: 20,
-                            },
-                            {
-                                key: 'x3eq',
-                                text: 'x3eq',
-                                value: 30,
-                            }
-                        ]}
-                        value={item.equationMultiply > 1 ? item.equationMultiply * 10 : item.multiply}
-                        onChange={(e, {value}) => {
-                            let equationBlocks = this.state.equationBlocks;
-                            if ([20, 30].includes(value)) {
-                                equationBlocks[index].multiply = 1
-                                equationBlocks[index].equationMultiply = value / 10
-                            } else if (value) {
-                                equationBlocks[index].multiply = value
-                                equationBlocks[index].equationMultiply = 1
-                            } else {
-                                equationBlocks[index].multiply = 1
-                                equationBlocks[index].equationMultiply = 1
-                            }
-                            this.setState({equationBlocks: equationBlocks}, this.calculatePoint)
-                        }}
-                    />
-                    {
-                        [pieces[23], pieces[26]].includes(item.name) ? <Dropdown
+                    <GridColumn inline>
+                        <Label detail={`${index + 1}. ${item.name}`} style={{backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
+                        <Dropdown
                             style={{minWidth: '6em'}}
-                            placeholder={item.name}
+                            placeholder='x1'
                             selection
-                            options={piecesOptions[item.name]}
-                            value={item.value}
-                            onChange={(e, {value}) => {
-                                let equationBlocks = this.state.equationBlocks;
-                                equationBlocks[index].value = value
-                                this.setState({equationBlocks: equationBlocks}, this.calculatePoint)
-                            }}
-                        /> : <div/>
-                    }
-                    {
-                        pieces[28] === item.name ? <TextArea
-                            style={{minWidth: '6em'}}
-                            rows={1}
-                            value={item.value}
-                            onChange={(e, {value}) => {
-                                let equationBlocks = this.state.equationBlocks;
-                                equationBlocks[index].value = value
-                                if (pieces.includes(value)) {
-                                    this.setState({equationBlocks: equationBlocks}, this.calculatePoint)
-                                } else {
-                                    this.setState({equationBlocks: equationBlocks})
+                            clearable
+                            options={[
+                                {
+                                    key: 'x2',
+                                    text: 'x2',
+                                    value: 2,
+                                },
+                                {
+                                    key: 'x3',
+                                    text: 'x3',
+                                    value: 3,
+                                },
+                                {
+                                    key: 'x2eq',
+                                    text: 'x2eq',
+                                    value: 20,
+                                },
+                                {
+                                    key: 'x3eq',
+                                    text: 'x3eq',
+                                    value: 30,
                                 }
+                            ]}
+                            value={item.equationMultiply > 1 ? item.equationMultiply * 10 : item.multiply}
+                            onChange={(e, {value}) => {
+                                let equationBlocks = this.state[stateName];
+                                if ([20, 30].includes(value)) {
+                                    equationBlocks[index].multiply = 1
+                                    equationBlocks[index].equationMultiply = value / 10
+                                } else if (value) {
+                                    equationBlocks[index].multiply = value
+                                    equationBlocks[index].equationMultiply = 1
+                                } else {
+                                    equationBlocks[index].multiply = 1
+                                    equationBlocks[index].equationMultiply = 1
+                                }
+                                this.setState({[stateName]: equationBlocks}, this.calculatePoint)
                             }}
-                        /> : <div/>
-                    }
+                        />
+                        {
+                            [pieces[23], pieces[26]].includes(item.name) ? <Dropdown
+                                style={{minWidth: '6em'}}
+                                placeholder={item.name}
+                                selection
+                                options={piecesOptions[item.name]}
+                                value={item.value}
+                                onChange={(e, {value}) => {
+                                    let equationBlocks = this.state[stateName];
+                                    equationBlocks[index].value = value
+                                    this.setState({[stateName]: equationBlocks}, this.calculatePoint)
+                                }}
+                            /> : <div/>
+                        }
+                        {
+                            pieces[28] === item.name ? <TextArea
+                                style={{width: '6em'}}
+                                rows={1}
+                                value={item.value}
+                                onChange={(e, {value}) => {
+                                    let equationBlocks = this.state[stateName];
+                                    equationBlocks[index].value = value
+                                    if (pieces.includes(value)) {
+                                        this.setState({[stateName]: equationBlocks}, this.calculatePoint)
+                                    } else {
+                                        this.setState({[stateName]: equationBlocks})
+                                    }
+                                }}
+                            /> : <div/>
+                        }
+                    </GridColumn>
                 </GridRow>
             )
         })
@@ -223,7 +245,14 @@ class CardAMathCalculatorComponent extends Component {
     calculatePoint = () => {
         let point = 0;
         let equationMultiply = 1
-        this.state.equationBlocks.forEach((item) => {
+        this.state.leftEquationBlocks.forEach((item) => {
+            point += item.point * (item.multiply || 1)
+            equationMultiply *= (item.equationMultiply || 1)
+        })
+        this.state.midEquationBlocks.forEach((item) => {
+            point += item.point
+        })
+        this.state.rightEquationBlocks.forEach((item) => {
             point += item.point * (item.multiply || 1)
             equationMultiply *= (item.equationMultiply || 1)
         })
@@ -234,7 +263,7 @@ class CardAMathCalculatorComponent extends Component {
 
     validate = () => {
         try {
-            let eqTextList = this.state.equationBlocks.map((value => {
+            let eqTextList = this.state.leftEquationBlocks.concat(this.state.midEquationBlocks, this.state.rightEquationBlocks).map((value => {
                 return value?.value.toString()
             })).join('').replace(/[^0-9*/()\-+.=]/g, '').split('=')
 
@@ -271,14 +300,34 @@ class CardAMathCalculatorComponent extends Component {
 
                         <Grid textAlign={'center'} style={{padding: '1vw'}}>
                             <GridRow>
-                                <Label
-                                    detail={this.state.equationBlocks.map((value => {
+                                {this.state.leftEquationBlocks.length > 0 ? <Label
+                                    detail={this.state.leftEquationBlocks.map((value => {
                                         return value?.value.toString()
                                     })).join(' ')}
-                                    style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}
+                                    style={{fontcolor: 'blue', fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}
+                                /> : <div/>}
+                                {this.state.midEquationBlocks.length > 0 ? <Label
+                                    detail={this.state.midEquationBlocks.map((value => {
+                                        return value?.value.toString()
+                                    })).join(' ')}
+                                    style={{
+                                        fontcolor: 'green',
+                                        fontSize: fontSize,
+                                        backgroundColor: 'rgba(0, 0, 0, 0)'
+                                    }}
+                                /> : <div/>}
+                                <Label
+                                    detail={this.state.rightEquationBlocks.map((value => {
+                                        return value?.value.toString()
+                                    })).join(' ')}
+                                    style={{
+                                        fontcolor: 'orange',
+                                        fontSize: fontSize,
+                                        backgroundColor: 'rgba(0, 0, 0, 0)'
+                                    }}
                                 />
                             </GridRow>
-                            <GridRow columns={3}>
+                            <GridRow columns={4}>
                                 <GridColumn>
                                     <Label
                                         detail={`Point: ${this.state.point}`}
@@ -296,17 +345,46 @@ class CardAMathCalculatorComponent extends Component {
                                     }
                                 </GridColumn>
                                 <GridColumn>
+                                    <Radio
+                                        toggle
+                                        label={this.state.leftChecked ? 'left' : 'right'}
+                                        checked={this.state.leftChecked}
+                                        onChange={(e, {value}) => {
+                                            this.setState({
+                                                leftChecked: !this.state.leftChecked
+                                            })
+                                        }}
+                                    />
+                                </GridColumn>
+                                <GridColumn>
                                     <ModScoreHistory
                                         openModal={this.state.openScoreHistory}
                                         onClose={() => {
                                             this.setState({openScoreHistory: false})
                                         }}
                                         onEditHistory={(history) => {
-                                            this.setState({
-                                                openScoreHistory: false,
-                                                refKey: history.key,
-                                                equationBlocks: history.equationBlocks,
-                                                point: history.point
+                                            this.clear(() => {
+                                                let midEquationBlocks = []
+                                                let rightEquationBlocks = []
+                                                if (history.key) {
+                                                    rightEquationBlocks = history.equationBlocks.map((block) => {
+                                                        block.multiply = 1
+                                                        block.equationMultiply = 1
+                                                        return block
+                                                    })
+                                                } else {
+                                                    midEquationBlocks = history.equationBlocks.map((block) => {
+                                                        block.multiply = 1
+                                                        block.equationMultiply = 1
+                                                        return block
+                                                    })
+                                                }
+                                                this.setState({
+                                                    openScoreHistory: false,
+                                                    refKey: history.key,
+                                                    midEquationBlocks: midEquationBlocks,
+                                                    rightEquationBlocks: rightEquationBlocks,
+                                                }, this.calculatePoint)
                                             })
                                         }}
                                     />
@@ -390,9 +468,17 @@ class CardAMathCalculatorComponent extends Component {
                                         color={'orange'}
                                         circular
                                         onClick={() => {
-                                            let equationBlocks = this.state.equationBlocks;
-                                            equationBlocks.pop()
-                                            this.setState({equationBlocks: equationBlocks}, this.calculatePoint)
+                                            let leftEquationBlocks = this.state.leftEquationBlocks
+                                            let rightEquationBlocks = this.state.rightEquationBlocks
+                                            if (this.state.leftChecked) {
+                                                leftEquationBlocks.pop()
+                                            } else {
+                                                rightEquationBlocks.pop()
+                                            }
+                                            this.setState({
+                                                leftEquationBlocks: leftEquationBlocks,
+                                                rightEquationBlocks: rightEquationBlocks,
+                                            }, this.calculatePoint)
                                         }}
                                     >
                                         Undo
@@ -422,11 +508,11 @@ class CardAMathCalculatorComponent extends Component {
                                             let timestamp = Date.now()
                                             let rKey = this.state.refKey || timestamp.toString()
                                             RealTimeDbService.setData(dbCon, rKey, {
-                                                equationBlocks: this.state.equationBlocks,
+                                                equationBlocks: this.state.leftEquationBlocks.concat(this.state.midEquationBlocks, this.state.rightEquationBlocks),
                                                 point: this.state.point
                                             }).then(success => {
-                                                this.alert.current.header = 'Saved'
-                                                this.alert.current.show()
+                                                    this.alert.current.header = 'Saved'
+                                                    this.alert.current.show()
                                                 }, failed => {
 
                                                 }
@@ -452,7 +538,15 @@ class CardAMathCalculatorComponent extends Component {
                                     }}
                                 >
                                     <Grid>
-                                        {this.generateEquationBlock()}
+                                        <GridRow columns={this.state.leftEquationBlocks.length > 0 ? 2 : 1}>
+                                            <GridColumn>
+                                                {this.state.leftEquationBlocks.length > 0 ? this.generateEquationBlock('leftEquationBlocks') :
+                                                    <div/>}
+                                            </GridColumn>
+                                            <GridColumn>
+                                                {this.generateEquationBlock('rightEquationBlocks')}
+                                            </GridColumn>
+                                        </GridRow>
                                     </Grid>
                                 </Segment>
                             </GridRow>
