@@ -1,0 +1,4 @@
+{
+  "baseApis": "https://us-central1-amathcalculator.cloudfunctions.net/app",
+  "emailFeedback": "/feedback/email"
+}

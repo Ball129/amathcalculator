@@ -7,6 +7,7 @@ import {CardAMathCalculator} from "./apps/CAL/CardAMathCalculator";
 import CardStopWatch from "./apps/TIMER/CardStopWatch";
 import {Container, Dropdown, Menu} from "semantic-ui-react";
 import CardCountdown from "./apps/TIMER/CardCoundown";
+import {CardEmailFeedback} from "./apps/CONTACT/CardEmailFeedback";
 
 
 let menuHeight = '4em'
@@ -30,7 +31,7 @@ class App extends Component {
         switch (this.state.currentCard) {
             case 0:
                 return (
-                    <Container style={{height: '100vh', paddingTop: menuHeight, boxShadow: 'None'}}>
+                    <Container style={{height: '95vh', paddingTop: menuHeight, boxShadow: 'None'}}>
                         <CardAMathCalculator/>
                     </Container>
                 )
@@ -38,6 +39,12 @@ class App extends Component {
                 return <CardStopWatch/>
             case 2:
                 return <CardCountdown/>
+            case 99:
+                return (
+                    <Container style={{height: '100vh', paddingTop: menuHeight, boxShadow: 'None'}}>
+                        <CardEmailFeedback/>
+                    </Container>
+                )
             default:
                 return <div/>
         }
@@ -52,7 +59,6 @@ class App extends Component {
                           color={'blue'} inverted>
                         <Menu.Item
                             key={0}
-                            color={'teal'}
                             onClick={(e) => {
                                 this.setState({currentCard: 0})
                             }}>
@@ -60,7 +66,6 @@ class App extends Component {
                         </Menu.Item>
                         <Menu.Item
                             key={1}
-                            color={'red'}
                             onClick={(e) => {
                                 this.setState({currentCard: 1})
                             }}>
@@ -68,11 +73,17 @@ class App extends Component {
                         </Menu.Item>
                         <Menu.Item
                             key={2}
-                            color={'red'}
                             onClick={(e) => {
                                 this.setState({currentCard: 2})
                             }}>
                             Countdown
+                        </Menu.Item>
+                        <Menu.Item
+                            key={99}
+                            onClick={(e) => {
+                                this.setState({currentCard: 99})
+                            }}>
+                            Feedback
                         </Menu.Item>
 
                         <Menu.Menu position={'right'}>
@@ -99,12 +110,13 @@ class App extends Component {
                                 />
                             </Menu.Item>
                             <Menu.Item>
-                                <p>V. 2.2.1</p>
+
                             </Menu.Item>
                         </Menu.Menu>
                     </Menu>
 
                     {this.selectCard()}
+                     <p align={'right'}>V. 2.2.2</p>
                 </FirestoreProvider>
             </AppContext.Provider>
         );
