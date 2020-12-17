@@ -11,6 +11,13 @@ import {CardEmailFeedback} from "./apps/CONTACT/CardEmailFeedback";
 
 
 let menuHeight = '4em'
+let cardList = ['calculator', 'stopwatch', 'countdown', 'feedback']
+
+// eslint-disable-next-line no-extend-native
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 
 class App extends Component {
 
@@ -18,7 +25,7 @@ class App extends Component {
         super(props);
         this.state = {
             db: firebase,
-            currentCard: 0,
+            currentCard: cardList[0],
             currentUserName: null,
         }
 
@@ -29,17 +36,17 @@ class App extends Component {
 
     selectCard = () => {
         switch (this.state.currentCard) {
-            case 0:
+            case cardList[0]:
                 return (
                     <Container style={{height: '95vh', paddingTop: menuHeight, boxShadow: 'None'}}>
                         <CardAMathCalculator/>
                     </Container>
                 )
-            case 1:
+            case cardList[1]:
                 return <CardStopWatch/>
-            case 2:
+            case cardList[2]:
                 return <CardCountdown/>
-            case 99:
+            case cardList[3]:
                 return (
                     <Container style={{height: '100vh', paddingTop: menuHeight, boxShadow: 'None'}}>
                         <CardEmailFeedback/>
@@ -57,33 +64,31 @@ class App extends Component {
                     <Menu fluid fixed={'top'} pointing borderless
                           style={{height: menuHeight}}
                           color={'blue'} inverted>
-                        <Menu.Item
-                            key={0}
-                            onClick={(e) => {
-                                this.setState({currentCard: 0})
-                            }}>
-                            Calculator
+
+                        <Menu.Item>
+                            <Dropdown item text='Menu'>
+                                <Dropdown.Menu>
+                                    {
+                                        cardList.map((cardId, index) => {
+                                            if (cardId === this.state.currentCard) return <div key={index}/>;
+                                            return (
+                                                <Dropdown.Item
+                                                    key={index}
+                                                    onClick={(e) => {
+                                                        this.setState({currentCard: cardId})
+                                                    }}
+                                                >
+                                                    {cardId.capitalize()}
+                                                </Dropdown.Item>
+                                            )
+                                        })
+                                    }
+                                </Dropdown.Menu>
+                            </Dropdown>
                         </Menu.Item>
-                        <Menu.Item
-                            key={1}
-                            onClick={(e) => {
-                                this.setState({currentCard: 1})
-                            }}>
-                            StopWatch
-                        </Menu.Item>
-                        <Menu.Item
-                            key={2}
-                            onClick={(e) => {
-                                this.setState({currentCard: 2})
-                            }}>
-                            Countdown
-                        </Menu.Item>
-                        <Menu.Item
-                            key={99}
-                            onClick={(e) => {
-                                this.setState({currentCard: 99})
-                            }}>
-                            Feedback
+
+                        <Menu.Item>
+                            <p>{this.state.currentCard.capitalize()}</p>
                         </Menu.Item>
 
                         <Menu.Menu position={'right'}>
@@ -110,13 +115,13 @@ class App extends Component {
                                 />
                             </Menu.Item>
                             <Menu.Item>
-
+                                <p align={'right'}>V. 2.2.2</p>
                             </Menu.Item>
                         </Menu.Menu>
                     </Menu>
 
                     {this.selectCard()}
-                     <p align={'right'}>V. 2.2.2</p>
+
                 </FirestoreProvider>
             </AppContext.Provider>
         );

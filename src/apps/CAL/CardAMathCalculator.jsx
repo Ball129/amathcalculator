@@ -161,7 +161,7 @@ class CardAMathCalculatorComponent extends Component {
         return this.state[stateName].map((item, index) => {
             return (
                 <GridRow key={index}>
-                    <GridColumn inline>
+                    <GridColumn>
                         <Label detail={`${index + 1}. ${item.name}`} style={{backgroundColor: 'rgba(0, 0, 0, 0)'}}/>
                         <Dropdown
                             style={{minWidth: '6em'}}
@@ -300,49 +300,62 @@ class CardAMathCalculatorComponent extends Component {
 
                         <Grid textAlign={'center'} style={{padding: '1vw'}}>
                             <GridRow>
-                                {this.state.leftEquationBlocks.length > 0 ? <Label
-                                    detail={this.state.leftEquationBlocks.map((value => {
-                                        return value?.value.toString()
-                                    })).join(' ')}
-                                    style={{fontcolor: 'blue', fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}
-                                /> : <div/>}
-                                {this.state.midEquationBlocks.length > 0 ? <Label
-                                    detail={this.state.midEquationBlocks.map((value => {
-                                        return value?.value.toString()
-                                    })).join(' ')}
+                                <p
                                     style={{
-                                        fontcolor: 'green',
+                                        paddingLeft: '0px',
+                                        paddingRight: '0px',
+                                        margins: '0px',
+                                        color: 'purple',
                                         fontSize: fontSize,
                                         backgroundColor: 'rgba(0, 0, 0, 0)'
                                     }}
-                                /> : <div/>}
-                                <Label
-                                    detail={this.state.rightEquationBlocks.map((value => {
-                                        return value?.value.toString()
-                                    })).join(' ')}
+                                >
+                                    {
+                                        this.state.leftEquationBlocks.map((value => {
+                                            return value?.value.toString()
+                                        })).join(' ')
+                                    }
+                                </p>
+                                <p
                                     style={{
-                                        fontcolor: 'orange',
+                                        paddingLeft: '0px',
+                                        paddingRight: '0px',
+                                        margins: '0px',
+                                        color: 'green',
                                         fontSize: fontSize,
                                         backgroundColor: 'rgba(0, 0, 0, 0)'
                                     }}
-                                />
+                                >
+                                    {
+                                        this.state.midEquationBlocks.map((value => {
+                                            return value?.value.toString()
+                                        })).join(' ')
+                                    }
+                                </p>
+                                <p
+
+                                    style={{
+                                        paddingLeft: '0px',
+                                        paddingRight: '0px',
+                                        margins: '0px',
+                                        color: 'blue',
+                                        fontSize: fontSize,
+                                        backgroundColor: 'rgba(0, 0, 0, 0)'
+                                    }}
+                                >
+                                    {
+                                        this.state.rightEquationBlocks.map((value => {
+                                            return value?.value.toString()
+                                        })).join(' ')
+                                    }
+                                </p>
                             </GridRow>
-                            <GridRow columns={4}>
+                            <GridRow columns={2}>
                                 <GridColumn>
                                     <Label
                                         detail={`Point: ${this.state.point}`}
                                         style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}
                                     />
-                                </GridColumn>
-                                <GridColumn>
-                                    <Label detail={'Valid:'}
-                                           style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}
-                                    />
-                                    {
-                                        this.state.valid ?
-                                            <Icon name={'checkmark'} color={'green'}/>
-                                            : <Icon name={'close'} color={'red'}/>
-                                    }
                                 </GridColumn>
                                 <GridColumn>
                                     <Radio
@@ -355,6 +368,18 @@ class CardAMathCalculatorComponent extends Component {
                                             })
                                         }}
                                     />
+                                </GridColumn>
+                            </GridRow>
+                            <GridRow columns={2}>
+                                <GridColumn>
+                                    <Label detail={'Valid:'}
+                                           style={{fontSize: fontSize, backgroundColor: 'rgba(0, 0, 0, 0)'}}
+                                    />
+                                    {
+                                        this.state.valid ?
+                                            <Icon name={'checkmark'} color={'green'}/>
+                                            : <Icon name={'close'} color={'red'}/>
+                                    }
                                 </GridColumn>
                                 <GridColumn>
                                     <ModScoreHistory
